@@ -96,13 +96,7 @@ namespace CryptoOrganizerWebAPI.Controllers
             try
             {
                 var result = await accountService.ForgotPasswordAsync(forgotPasswordRequest);
-
-                if (result.IsSuccess)
-                {
-                    return Ok(result);
-                }
-
-                return NotFound(result.Message);
+                return Ok(new { Message = "If an account with this email exists, a password reset link has been sent." });
             }
             catch (Exception ex)
             {
@@ -111,27 +105,32 @@ namespace CryptoOrganizerWebAPI.Controllers
         }
 
         [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestModel resetPasswordRequest)
+        public async Task<IActionResult> ResetPasswordAsync([FromQuery] string email, [FromQuery] string token, [FromBody] ResetPasswordRequestModel model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid reset password request.");
+                return BadRequest(new { Message = "Invalid reset password request." });
+            }
+
+            if (model.Password != model.ConfirmPassword)
+            {
+                return BadRequest(new { Message = "Has³o oraz potwierdzone has³o musz¹ byæ identyczne." });
             }
 
             try
             {
-                var result = await accountService.ResetPasswordAsync(resetPasswordRequest);
+                var result = await accountService.ResetPasswordAsync(email, token, model);
 
                 if (result.IsSuccess)
                 {
-                    return Ok(result);
+                    return Ok(new { Message = "Password reset successful." });
                 }
 
-                return BadRequest(result.Message);
+                return BadRequest(new { Message = result.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
             }
         }
     }
