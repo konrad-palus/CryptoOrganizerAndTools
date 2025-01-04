@@ -41,6 +41,15 @@ namespace CryptoOrganizerWebAPI
             builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             builder.Services.AddSingleton<ICacheService, CacheService>();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost4200", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
