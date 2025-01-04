@@ -51,6 +51,7 @@ namespace CryptoOrganizerWebAPI
                 });
             });
 
+
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -63,6 +64,7 @@ namespace CryptoOrganizerWebAPI
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowLocalhost4200");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

@@ -73,14 +73,14 @@ namespace CryptoOrganizerWebAPI.Controllers
 
                 if (result.IsSuccess)
                 {
-                    return Ok(result);
+                    return Redirect($"http://localhost:4200/welcome/confirm-email?status=success&message={Uri.EscapeDataString(result.Message)}");
                 }
 
-                return BadRequest(result.Message);
+                return Redirect($"http://localhost:4200/welcome/confirm-email?status=error&message={Uri.EscapeDataString(result.Message)}");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return Redirect($"http://localhost:4200/welcome/confirm-email?status=error&message={Uri.EscapeDataString("An unexpected error occurred.")}");
             }
         }
 
