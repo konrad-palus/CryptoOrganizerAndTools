@@ -116,7 +116,7 @@ namespace CryptoOrganizerWebAPI.Services
                     var token = await userManager.GeneratePasswordResetTokenAsync(user);
                     token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-                    var resetLink = $"http://localhost:7098/api/account/ResetPassword?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
+                    var resetLink = $"http://localhost:4200/welcome/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(token)}";
 
                     await emailService.SendEmailAsync(user.Email, "Reset Password", $"""<a href="{resetLink}">Click here to reset your password</a>""");
 
