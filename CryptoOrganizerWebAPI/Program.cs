@@ -47,8 +47,18 @@ namespace CryptoOrganizerWebAPI
                 {
                     builder.WithOrigins("http://localhost:4200")
                            .AllowAnyHeader()
+                           .AllowCredentials()
                            .AllowAnyMethod();
                 });
+            });
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
+                options.LoginPath = "/account/login";
+                options.LogoutPath = "/account/logout";
             });
 
 
