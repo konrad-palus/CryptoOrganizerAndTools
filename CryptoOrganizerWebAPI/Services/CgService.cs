@@ -129,6 +129,7 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
                 logger.LogInformation("Fetching liquidity pools for {TokenTicker} with URL: {ApiUrl}", token.Ticker, apiUrl);
 
                 var response = await httpClient.GetAsync(apiUrl);
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
@@ -148,7 +149,9 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
                         {
                             TokenTicker = token.Ticker,
                             ExchangeName = ticker.Market.Name,
-                            BuyPrice = ticker.Last ?? 0
+                            BuyPrice = ticker.Last ?? 0,
+                            TradeUrl = ticker.TradeUrl,
+                            LastUpdated = DateTime.Parse(ticker.LastFetchAt).ToLocalTime().ToString()
                         });
                     }
                 }
