@@ -17,7 +17,7 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
     {
         try
         {
-            var tokens = new List<Token>();
+            var newTokens = new List<Token>();
 
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -43,7 +43,7 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
                 var token = tokenData.FirstOrDefault(t => t.Id.Equals(slug, StringComparison.OrdinalIgnoreCase));
                 if (token != null)
                 {
-                    tokens.Add(new Token
+                    newTokens.Add(new Token
                     {
                         TokenName = token.Name,
                         Ticker = token.Symbol,
@@ -55,7 +55,7 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
             {
                 foreach (var token in tokenData.Take(limit))
                 {
-                    tokens.Add(new Token
+                    newTokens.Add(new Token
                     {
                         TokenName = token.Name,
                         Ticker = token.Symbol,
@@ -66,7 +66,7 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
 
             var existingTokens = await context.Tokens.ToListAsync();
 
-            foreach (var token in tokens)
+            foreach (var token in newTokens)
             {
                 var existingToken = existingTokens.FirstOrDefault(t => t.Slug == token.Slug);
 
@@ -84,13 +84,18 @@ public class CgService(ICacheService cache, IConfiguration configuration, ILogge
             await context.SaveChangesAsync();
             logger.LogInformation("Tokens updated in the database.");
 
-            var tokenDtos = tokens.ConvertAll(t => new TokenCacheDto
-            {
-                TokenId = t.TokenId,
-                TokenName = t.TokenName,
-                Ticker = t.Ticker,
-                Slug = t.Slug
-            });
+            var allTokensFromDb = await context.Tokens.ToListAsync();
+
+            var tokenDtos = allTokensFromDb
+                .GroupBy(t => t.Slug)
+                .Select(group => group.First())
+                .Select(t => new TokenCacheDto
+                {
+                    TokenId = t.TokenId,
+                    TokenName = t.TokenName,
+                    Ticker = t.Ticker,
+                    Slug = t.Slug
+                }).ToList();
 
             cache.Set(TokensCacheKey, tokenDtos, TimeSpan.FromDays(1));
             logger.LogInformation("Tokens cached successfully.");
